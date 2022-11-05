@@ -6,12 +6,12 @@ import torch
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 args = {
-    'batch_size' : 64,
+    'batch_size' : 256,
     'num_simulations':100,
-    'numIters':10,
-    'numEps':10,
-    'epochs':25,
-    'checkpoint':'latest.pt',
+    'numIters':50,
+    'numEps':25,
+    'epochs':100,
+    'checkpoint':'latest_v5.pt',
     'lr' : 0.001,
 }
 

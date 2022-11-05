@@ -1,4 +1,3 @@
-from zmq import device
 from minimalConnectFour import Board
 from AlphaConnect import AlphaConnect
 import torch
@@ -13,7 +12,7 @@ if __name__ == "__main__":
     
     args = {
         'batch_size' : 64,
-        'num_simulations':100,
+        'num_simulations':150,
         'numIters':10,
         'numEps':10,
         'epochs':25,
@@ -22,7 +21,7 @@ if __name__ == "__main__":
     }
     
     network = AlphaConnect().to(device)
-    network.load_state_dict(torch.load('latest_v4.pt'))
+    network.load_state_dict(torch.load('./latest_v1.pt'))
     network.eval()
     mcts = MCTS(board, network, args, device)
     

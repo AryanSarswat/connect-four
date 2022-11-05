@@ -39,7 +39,7 @@ class Trainer:
             
             train_examples.append([state.get_canonical_form(), current_player, action_probs])
             
-            action = root.select_action(temperature=0)
+            action = root.select_action(temperature=0.5)
             state = state.play_action(action)
             reward = state.get_score()
             
@@ -51,7 +51,7 @@ class Trainer:
                 return ret
             
     def learn(self):
-        for i in tqdm(range(1, self.args['numIters'] + 1), desc="Num of Iterations"):
+        for i in tqdm(range(self.args['numIters']), desc="Num of Iterations"):
             train_examples =  []
             
             for eps in tqdm(range(self.args['numEps']), desc="Num episodes"):
@@ -67,7 +67,7 @@ class Trainer:
         pi_losses = []
         v_losses = []
         
-        for epoch in range(1, self.args['epochs'] + 1):
+        for epoch in range(self.args['epochs']):
             self.model.train()
             
             batch_idx = 0

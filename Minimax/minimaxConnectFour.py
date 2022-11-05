@@ -18,7 +18,7 @@ class MinimaxConnectFour:
             self.opponent_player_number = 1
         self.game_reward = 0
         # Start game
-        self.play_game()
+        #self.play_game()
 
     def print_board(self):
         print('------ GAME STATE ------')
@@ -234,5 +234,5 @@ class MinimaxConnectFour:
             return value, best_column
 
 if __name__ == '__main__':
-    MinimaxConnectFour(1, 8)
+    MinimaxConnectFour(1, 6)
     # Can play either as P1 or P2, 6-7 turn lookahead is possible. 8 is pushing it a bit

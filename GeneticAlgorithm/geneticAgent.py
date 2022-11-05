@@ -40,7 +40,7 @@ class GeneticAgent:
         return score
     
     # --------- Calculate score of each column, and select best --------- #
-    def selectAction(self, board, actions):
+    def get_action(self, board, actions):
         column_number = 0
         column_scores = []
         for row_index in actions:

@@ -5,7 +5,7 @@ The RandomAgent class is one which randomly chooses a column to
 set their token for the connect 4 game
 '''
 class RandomAgent:
-    def select_random_column(self, available_actions):
+    def get_action(self, available_actions):
         column_number = 0
         available_columns = []
         for action in available_actions:

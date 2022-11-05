@@ -77,12 +77,17 @@ class MCTS:
         root = Node(0, to_play)
 
         fwdPass = torch.FloatTensor(state.get_canonical_form()).to(self.device)
-        action_probs, value = model(fwdPass)
-        action_probs = action_probs.detach().cpu().numpy()[0]
-        valid_moves = state.get_valid_moves_mask()
-        action_probs = action_probs * valid_moves
-        action_probs /= action_probs.sum()
-        root.expand(state, to_play, action_probs)
+        if model != None:
+            action_probs, value = model(fwdPass)
+            action_probs = action_probs.detach().cpu().numpy()[0]
+            valid_moves = state.get_valid_moves_mask()
+            action_probs = action_probs * valid_moves
+            action_probs /= action_probs.sum()
+            root.expand(state, to_play, action_probs)
+        else:
+            actions_probs = np.ones(self.game.action_size) * state.get_valid_moves_mask()
+            actions_probs /= actions_probs.sum()
+            root.expand(state, to_play, actions_probs)
         
         for _ in range(self.args['num_simulations']):
             node = root
@@ -101,14 +106,18 @@ class MCTS:
             value = next_state.get_score()
             
             if value is None:
-                fwdPass = torch.FloatTensor(next_state.get_canonical_form()).to(self.device)
-                action_probs, value = model(fwdPass)
-                valid_moves = next_state.get_valid_moves_mask()
-                action_probs = action_probs.detach().cpu().numpy()[0]
-                action_probs = action_probs * valid_moves
-                action_probs /= action_probs.sum()
-                node.expand(next_state, parent.to_play * -1, action_probs)
-            
+                if self.model != None:
+                    fwdPass = torch.FloatTensor(next_state.get_canonical_form()).to(self.device)
+                    action_probs, value = model(fwdPass)
+                    valid_moves = next_state.get_valid_moves_mask()
+                    action_probs = action_probs.detach().cpu().numpy()[0]
+                    action_probs = action_probs * valid_moves
+                    action_probs /= action_probs.sum()
+                    node.expand(next_state, parent.to_play * -1, action_probs)
+                else:
+                    action_probs = np.ones(self.game.action_size) * next_state.get_valid_moves_mask()
+                    action_probs /= action_probs.sum()
+                    node.expand(next_state, parent.to_play * -1, action_probs)
             self.backpropagate(search_path, value, parent.to_play * -1)
             
         return root

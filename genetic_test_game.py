@@ -41,7 +41,7 @@ if __name__ == '__main__':
             game_state = connect_four.get_state()   # 2D numpy array: 1 = player 1 tokens, 2 = player 2 tokens
 
             if turn == agent_number:
-                selection = agent.selectAction(game_state, available_actions)           # Trained Genetic Agent
+                selection = agent.get_action(game_state, available_actions)           # Trained Genetic Agent
                 print(f'[AI SELECTION] AI has selected column: {str(selection)}')
                 game_result = connect_four.play_turn(selection)
             else:
