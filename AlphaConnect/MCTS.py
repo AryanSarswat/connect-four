@@ -85,7 +85,7 @@ class MCTS:
             action_probs /= action_probs.sum()
             root.expand(state, to_play, action_probs)
         else:
-            actions_probs = np.ones(self.game.action_size) * state.get_valid_moves_mask()
+            actions_probs = np.ones(7) * state.get_valid_moves_mask()
             actions_probs /= actions_probs.sum()
             root.expand(state, to_play, actions_probs)
         
@@ -115,7 +115,19 @@ class MCTS:
                     action_probs /= action_probs.sum()
                     node.expand(next_state, parent.to_play * -1, action_probs)
                 else:
-                    action_probs = np.ones(self.game.action_size) * next_state.get_valid_moves_mask()
+                    temp_next = next_state
+                    total = 0
+                    for sim in range(self.args['num_simulations']):
+                        temp_next = next_state
+                        while temp_next.get_score() is None:
+                            score = next_state.get_score()
+                            if score is not None:
+                                total += score
+                                break
+                            temp_next = temp_next.play_action(np.random.choice(temp_next.get_actions()))
+
+                    value = total / self.args['num_simulations']
+                    action_probs = np.ones(7) * next_state.get_valid_moves_mask()
                     action_probs /= action_probs.sum()
                     node.expand(next_state, parent.to_play * -1, action_probs)
             self.backpropagate(search_path, value, parent.to_play * -1)

@@ -129,6 +129,7 @@ from AlphaConnect.MCTS import MCTS
 from AlphaConnect.AlphaConnect import AlphaConnect
 from AlphaConnect.minimalConnectFour import Board
 from QLearning.dqn import get_model
+from mctsConnectFour import ConnectFour, MonteCarlo
 
 
 class AlphaConnectAgent():
@@ -155,13 +156,16 @@ class MinimaxAgent():
         self.minimax = MinimaxConnectFour(1, 6)
         
     def get_action(self, board):
-        value, move = self.minimax.minimax(board, 6, -math.inf, math.inf, True)
+        value, move = self.minimax.minimax(board, 7, -math.inf, math.inf, True)
         return move
 
 class MCTSAgent():
-    def __init__(self, board, args, device):
-        self.model = None
-        self.mcts = MCTS(board, self.model, args, device)
+    def __init__(self, board):
+        self.mcts = MonteCarlo(board)
+
+    def get_action(self):
+        return self.mcts.get_move()
+    
 
 
 FEATURE_WEIGHTS = [0.215, 0.948, 0.008, 0.411, 0.802, 0.897, 0.194, 0.109, 0.027, 0.449, 0.032, 0.954, 0.837] 
@@ -170,7 +174,7 @@ if __name__ == "__main__":
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     args = {
         'batch_size' : 64,
-        'num_simulations':150,
+        'num_simulations':25,
         'numIters':10,
         'numEps':10,
         'epochs':25,
@@ -179,30 +183,37 @@ if __name__ == "__main__":
     }
     
     
-    NUM_TRIALS = 25
+    NUM_TRIALS = 10
     
     P1_WIN = 0
     P2_WIN = 0
     
     game = Connect4Env()
     minimalistConnect4 = Board()
+    mctsBoard = ConnectFour()
     
-    P1 = AlphaConnectAgent(game, args, device)
-    P2 = AlphaConnectAgent(game, args, device)
+    P1 = QLearningAgent()
+    P2 = MCTSAgent(mctsBoard)
     
-    for i in tqdm(range(NUM_TRIALS)):
+    print(P1)
+    print(P2)
+    
+    for i in tqdm(range(NUM_TRIALS), desc='Trials'):
         
         game = Connect4Env()
         minimalistConnect4 = Board()
+        mctsBoard = ConnectFour()
+        P2 = MCTSAgent(mctsBoard)
         
-        while not game._isDone():
+        while not minimalistConnect4.isDone():
             if game.current_player == 1:
-                action = P1.get_action(minimalistConnect4)
+                action = P1.get_action(game._get_canonical_board(), minimalistConnect4.column_heights)
             else:
-                action = P1.get_action(minimalistConnect4)
+                action = P2.get_action()
                 
             game.step(action)
             minimalistConnect4 = minimalistConnect4.play_action(action)
+            mctsBoard.play(action)
         
         if game._get_winner() == 1:
             P1_WIN += 1
